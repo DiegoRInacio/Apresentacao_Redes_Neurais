@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 60px;
+            text-align: center;
+            color: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+        }
+
+        /* Cabeçalho para slides (exceto o primeiro) */
+        .slide-header {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.2);
+            padding: 8px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide:first-child .slide-header {
+            display: none;
+        }
+
+        .slide h1 {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .slide h2 {
+            font-size: 2.8em;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #FFD700;
+        }
+
+        .slide h3 {
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            color: #FFE6CC;
+        }
+
+        .slide p, .slide li {
+            font-size: 1.4em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .slide ul {
+            text-align: left;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .slide li {
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 80px;
+            height: auto;
+        }
+
+        .presenter-info {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 1.2em;
+            background: rgba(0,0,0,0.3);
+            padding: 10px 15px;
+            border-radius: 20px;
+        }
+
+        .table-container {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+
+        th {
+            background: rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .timeline {
+            text-align: left;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            margin-bottom: 25px;
+            padding-left: 20px;
+            border-left: 3px solid #FFD700;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #FFD700;
+            border-radius: 50%;
+            position: absolute;
+            left: -7px;
+            top: 5px;
+        }
+
+        .year {
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .highlight-box {
+            background: rgba(255,255,255,0.15);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #FFD700;
+        }
+
+        .comparison-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 50px 0;
+            flex-wrap: wrap;
+        }
+
+        .comparison-item {
+            text-align: center;
+            min-width: 200px;
+            margin: 20px;
+        }
+
+        .arrow {
+            font-size: 3em;
+            color: #FFD700;
+            margin: 0 20px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 80px 20px 60px 20px;
+            }
+            
+            .slide h1 {
+                font-size: 2.5em;
+            }
+            
+            .slide h2 {
+                font-size: 2em;
+            }
+            
+            .slide p, .slide li {
+                font-size: 1.2em;
+            }
+
+            .comparison-container {
+                flex-direction: column;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter" id="slideCounter">1 / 18</div>
+        
+        <!-- Logo da Univassouras -->
+        <img class="logo" src="https://univassouras.edu.br/wp-content/uploads/2021/12/codigo-etica-logo.png" alt="Univassouras" onerror="this.style.display='none'">
+
+        <!-- Slide 1 - Abertura -->
+        <div class="slide active">
+            <h1>Do Algoritmo ao Modelo</h1>
+            <h2>Como Redes Neurais Transformam Software</h2>
+            <div class="presenter-info">
+                <p><strong>Diego Ramos Inácio</strong></p>
+                <p>Professor da Engenharia de Software Univassouras Saquarema</p>
+                <p>Cientista de Dados e Desenvolvedor SIG</p>
+                <p>Mestre em Engenharia de Biossistemas</p>
+            </div>
+        </div>
+
+        <!-- Slide 2 - O que é IA -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>O que é Inteligência Artificial (IA)</h2>
+            <p>Campo da computação que cria sistemas capazes de realizar tarefas típicas de humanos.</p>
+            <div class="highlight-box">
+                <h3>Em poucas palavras:</h3>
+                <p>Fazer máquinas "pensarem" de forma parecida com humanos.</p>
+            </div>
+            <h3>Exemplos:</h3>
+            <ul>
+                <li>Chatbots</li>
+                <li>Reconhecimento de voz</li>
+                <li>Carros autônomos</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3 - Neurônio Natural -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>O que é um Neurônio Natural</h2>
+            <p>Célula do cérebro que recebe, processa e envia sinais.</p>
+            <div class="highlight-box">
+                <h3>Em poucas palavras:</h3>
+                <p>Unidade básica que processa informações no cérebro.</p>
+            </div>
+            <h3>Partes principais:</h3>
+            <ul>
+                <li><strong>Dendritos:</strong> Recebem sinais.</li>
+                <li><strong>Soma:</strong> Processa sinais.</li>
+                <li><strong>Axônio:</strong> Envia sinais.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4 - Neurônio Artificial -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>O que é um Neurônio Artificial</h2>
+            <p>Modelo matemático inspirado no neurônio natural.</p>
+            <div class="highlight-box">
+                <h3>Em poucas palavras:</h3>
+                <p>Cálculo que imita o comportamento de um neurônio.</p>
+            </div>
+            <h3>Partes:</h3>
+            <p style="font-size: 1.8em; color: #FFD700;">
+                Entradas → Pesos → Função de ativação → Saída
+            </p>
+        </div>
+
+        <!-- Slide 5 - Comparação -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Diferença entre Neurônio Natural e Artificial</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Característica</th>
+                            <th>Natural (biológico)</th>
+                            <th>Artificial (computador)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Estrutura</strong></td>
+                            <td>Célula viva</td>
+                            <td>Fórmula matemática</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Comunicação</strong></td>
+                            <td>Elétrica e química</td>
+                            <td>Números e cálculos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Velocidade individual</strong></td>
+                            <td>Milissegundos</td>
+                            <td>Nanosegundos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quantidade</strong></td>
+                            <td>Bilhões</td>
+                            <td>Milhares a bilhões</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 6 - Rede Neural -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>O que é uma Rede Neural</h2>
+            <p>Conjunto de neurônios artificiais conectados em camadas.</p>
+            <div class="highlight-box">
+                <h3>Em poucas palavras:</h3>
+                <p>Vários neurônios artificiais trabalhando juntos.</p>
+            </div>
+            <h3>Exemplo:</h3>
+            <p style="font-size: 1.6em; color: #FFE6CC;">Reconhecer rostos em fotos.</p>
+        </div>
+
+        <!-- Slide 7 - História da IA -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Breve História da IA</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="year">1950:</span> Alan Turing propõe o "Teste de Turing" – verifica se uma máquina consegue se passar por humano.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1958:</span> Frank Rosenblatt cria o Perceptron – primeiro modelo de rede neural simples.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1970–1990:</span> Invernos da IA – falta de avanço por limitações técnicas.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">2012:</span> AlexNet vence o ImageNet – rede neural profunda que popularizou o deep learning.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">2020+:</span> IA generativa (GPT, DALL·E) – cria textos, imagens e sons.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8 - Da Lógica ao Aprendizado -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Da Lógica ao Aprendizado</h2>
+            <div class="comparison-container">
+                <div class="comparison-item">
+                    <h3 style="color: #FF6B6B;">Antes</h3>
+                    <p>Programas seguiam regras fixas (if/else)</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="comparison-item">
+                    <h3 style="color: #4ECDC4;">Agora</h3>
+                    <p>Programas aprendem com dados</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>Em poucas palavras:</h3>
+                <p>De "seguir instruções" para "aprender sozinho".</p>
+            </div>
+        </div>
+
+        <!-- Slide 9 - Estrutura Interna -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Estrutura Interna de uma Rede Neural</h2>
+            <p style="font-size: 1.8em; color: #FFD700; margin-bottom: 40px;">
+                Camada de entrada → camadas ocultas → camada de saída.
+            </p>
+            <p>Função de ativação decide se o neurônio "liga" ou "desliga".</p>
+            <div class="highlight-box">
+                <h3>Em poucas palavras:</h3>
+                <p>Dados entram, são processados e viram resultados.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10 - Evolução Tecnológica -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Evolução Tecnológica</h2>
+            <ul>
+                <li><strong>GPU (Graphics Processing Unit):</strong> Placa que faz muitos cálculos ao mesmo tempo – acelera o treino de redes neurais.</li>
+                <li><strong>TPU (Tensor Processing Unit):</strong> Chip do Google especializado em IA – mais rápido para redes neurais.</li>
+                <li><strong>Frameworks:</strong> TensorFlow, PyTorch – bibliotecas que facilitam criar redes neurais.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 11 - Glossário -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Glossário Essencial</h2>
+            <ul>
+                <li><strong>Época (Epoch):</strong> Uma rodada completa de treino.</li>
+                <li><strong>Overfitting:</strong> Quando o modelo "decora" o treino.</li>
+                <li><strong>Função de ativação:</strong> Regras que dão não-linearidade à rede.</li>
+                <li><strong>Peso:</strong> Valor que indica a importância de uma entrada.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 12 - Como Transformam Software -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Como as Redes Neurais Transformam Softwares</h2>
+            <ul>
+                <li><strong>Visão computacional:</strong> Detecta objetos e pessoas.</li>
+                <li><strong>NLP:</strong> Chatbots e tradutores.</li>
+                <li><strong>Recomendação:</strong> Netflix, Spotify sugerem conteúdo.</li>
+                <li><strong>Previsão:</strong> Sistemas que antecipam falhas.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 13 - Integração -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Integração com Engenharia de Software</h2>
+            <ul>
+                <li><strong>APIs:</strong> Serviços prontos de IA.</li>
+                <li><strong>Microserviços:</strong> Modelos independentes no sistema.</li>
+                <li><strong>MLOps:</strong> Ferramentas para monitorar e atualizar modelos.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 14 - Desafios -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Desafios</h2>
+            <ul>
+                <li><strong>Explicabilidade:</strong> Entender como o modelo decide.</li>
+                <li><strong>Custo:</strong> Treinar modelos pode ser caro.</li>
+                <li><strong>Viés:</strong> Dados ruins geram resultados ruins.</li>
+                <li><strong>Segurança:</strong> Proteger contra ataques.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 15 - Casos de Uso -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Casos de Uso Reais</h2>
+            <ul>
+                <li><strong>Google Translate:</strong> Tradução automática com IA.</li>
+                <li><strong>Tesla Autopilot:</strong> Direção assistida com visão computacional.</li>
+                <li><strong>IBM Watson:</strong> Apoio a diagnósticos médicos.</li>
+                <li><strong>Waze:</strong> Previsão de rotas.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 16 - Futuro -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Futuro das Redes Neurais</h2>
+            <ul>
+                <li><strong>TinyML:</strong> IA em dispositivos pequenos.</li>
+                <li><strong>IA embarcada:</strong> Funciona sem internet.</li>
+                <li><strong>Aprendizado federado:</strong> Treino sem enviar dados brutos.</li>
+                <li><strong>IA generativa:</strong> Cria textos, imagens, código e música.</li>
+            </ul>
+        </div>
+
+        <!-- Slide 17 - Encerramento -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Encerramento</h2>
+            <div class="highlight-box">
+                <h3>Resumo:</h3>
+                <p>De regras fixas para aprendizado com redes neurais.</p>
+            </div>
+            <h1 style="color: #FFD700; font-size: 2.5em; margin: 40px 0;">"Quem domina IA hoje, molda o software do amanhã."</h1>
+            <h3>Espaço para perguntas.</h3>
+        </div>
+
+        <!-- Slide 18 - Parte Prática -->
+        <div class="slide">
+            <div class="slide-header">
+                <strong>Diego Ramos Inácio</strong> | Do Algoritmo ao Modelo: Como Redes Neurais Transformam Software
+            </div>
+            <h2>Parte Prática</h2>
+            <h3>(Neurônio Manual em Python)</h3>
+            <div class="highlight-box">
+                <p>Vamos implementar um neurônio artificial simples!</p>
+            </div>
+        </div>
+
+        <!-- Navegação -->
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousSlide()">◀ Anterior</button>
+            <button class="nav-btn" onclick="nextSlide()">Próximo ▶</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Controles de teclado
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (event.key === 'Home') {
+                showSlide(0);
+            } else if (event.key === 'End') {
+                showSlide(totalSlides - 1);
+            } else if (event.key === 'Escape') {
+                // Modo tela cheia
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    document.documentElement.requestFullscreen();
+                }
+            }
+        });
+
+        // Inicializar contador
+        document.getElementById('slideCounter').textContent = `1 / ${totalSlides}`;
+        
+        // Adicionar funcionalidade de tela cheia ao clicar duas vezes
+        document.addEventListener('dblclick', function() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
